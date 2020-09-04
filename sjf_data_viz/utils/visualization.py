@@ -42,6 +42,7 @@ def draw_all(X, color, n_neighbors=10, only_method=None, base_folder=".", n_comp
     z_list = []
     for i, (method_name, method) in enumerate(methods.items()):
 
+        # Init the correct subplot grid and axes
         if only_method is None:
             if n_components == 3:
                 ax = fig.add_subplot(3, 3, i+1, projection=Axes3D.name)
@@ -53,56 +54,42 @@ def draw_all(X, color, n_neighbors=10, only_method=None, base_folder=".", n_comp
             else:                
                 ax = fig.add_subplot(111)
         
+        # Compute or load data
         fname = base_folder + "/" + method_name + ".pkl"
         if os.path.isfile(fname):
+            #load
             with open(fname, 'rb') as f:
                 [z, dt] = pickle.load(f)
         else:
-            z, dt = embed_(method=method, X=X)
+            #compute
+            try:
+                t0 = time()
+                z = method.fit_transform(X)
+                t1 = time()
+                dt = t1 - t0
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                dt, z = -1, None
             if dt > 0:
-                with open(fname, 'wb') as f:
-                    pickle.dump([z, dt], f)
+                #save
+                with open(fname, 'wb') as f:  pickle.dump([z, dt], f)
 
-
-        print("%s: %.2g sec" % (method_name, dt))
-        scatter = draw_(ax=ax, z=z, color=color, 
-            title="%s (%.2g sec)" % (method_name, dt))
-        z_list.append((method_name, z))
+        # Draw representations
+        print("{}: {:.2g} sec".format(method_name, dt))
+        scatter = ax.scatter(z[:, 0], z[:, 1], c=color, marker=".")
+        legend1 = ax.legend(*scatter.legend_elements(), title="Digit")
+        ax.add_artist(legend1)
+        ax.set_title("{} ({:.2g} sec)".format(method_name, dt))
+        ax.axis('tight')
         if only_method is None:
             ax.xaxis.set_major_formatter(NullFormatter())
             ax.yaxis.set_major_formatter(NullFormatter())
 
+        # Store representations to be returned
+        z_list.append((method_name, z))
+
     return z_list
-
-
-
-def embed_(method, X):
-    try:
-        t0 = time()
-        z = method.fit_transform(X)
-        t1 = time()
-        dt = t1 - t0
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        dt = -1
-        z = None
-    return z, dt
-
-def draw_(z, color, title, box=None, ax=None):
-    if ax is None:
-        ax = plt.figure()
-    for c in set(color):
-        z_col = z[np.where(color==c)]
-        scatter = ax.scatter(*[z_col[:, i] for i in range(z_col.shape[1])], cmap=plt.cm.Spectral, label=c, marker=".")
-        if box is not None:
-            ax.scatter(z_col[in_box(z_col, box), 0], z_col[in_box(z_col, box), 1], 
-                cmap=plt.cm.Spectral, label=c, marker="o")
-    ax.legend()
-    ax.set_title(title)
-    ax.axis('tight')
-    return scatter
-
 
 from mpl_toolkits.mplot3d import proj3d
 from matplotlib import offsetbox

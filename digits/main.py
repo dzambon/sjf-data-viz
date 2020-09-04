@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from utils import *
+from sjf_data_viz.utils.visualization import *
 from sklearn import datasets
 import numpy as np
 
@@ -24,5 +24,5 @@ if only_method is not None:
     else:
         ImageAnnotations2D(z, imgs)
 
-plt.savefig("./digit3d.pdf")
+plt.savefig("./digits.pdf")
 plt.show()
