@@ -9,6 +9,12 @@ class JumpingTSNE(TSNE):
         self.X_embedded_jumps = []
         self.momentum_jumps = []
 
+    def num_jumps_per_type(self):
+        from collections import Counter
+        cnt = Counter(self.momentum_jumps)
+        assert len(cnt.keys()) == 2
+        return cnt[min(cnt.keys())], cnt[max(cnt.keys())]
+
     def _tsne(self, P, degrees_of_freedom, n_samples, X_embedded,
               neighbors=None, skip_num_points=0):
         """Runs t-SNE."""

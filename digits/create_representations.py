@@ -12,7 +12,7 @@ y = ds.target
 n_neighbors = 30
 
 z_list = draw_all(X=X, color=y, n_neighbors=n_neighbors, n_components=n_components,
-                  only_method=only_method, base_folder=".")
+                  only_method=only_method, base_folder="./results")
 
 if only_method is not None:
     pp = np.random.permutation(X.shape[0])[::10]
@@ -24,5 +24,5 @@ if only_method is not None:
     else:
         ImageAnnotations2D(z, imgs)
 
-plt.savefig("./digits.pdf")
+plt.savefig("./results/digits.pdf")
 plt.show()
