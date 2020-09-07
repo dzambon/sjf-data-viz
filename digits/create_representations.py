@@ -4,7 +4,7 @@ from sklearn import datasets
 import numpy as np
 
 n_components=2
-only_method=None #"t-SNE"
+only_method="t-SNE"
 
 ds = datasets.load_digits(n_class=10)
 X = ds.data
