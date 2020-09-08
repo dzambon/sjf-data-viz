@@ -1,0 +1,6 @@
+# Your Spotify username
+USERNAME = 'my_username'
+# Client ID; copy this from your app 
+CID = 'f2o8f74p2example3h1p9f19pfh12jf0'
+# Client Secret; copy this from your app
+SECRET = 'f2o8f74p2example3h1p9f19pfh12jf0'
