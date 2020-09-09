@@ -162,7 +162,7 @@ def create_playlist(z, s0):
         playlist.append(sorted_indices[l])
     
     print(playlist)
-    return playlist
+    return np.array(playlist)
 
 def extract_song_ids(pl_info):
     # Michelle and Samuel

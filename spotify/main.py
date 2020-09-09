@@ -1,5 +1,6 @@
 import os
 import pickle
+from datetime import datetime
 from sjf_data_viz.spotify import *
 
 # -----------------------------------------------------
@@ -7,10 +8,19 @@ from sjf_data_viz.spotify import *
 # -----------------------------------------------------
 # 1) Create a dictionary of playlist IDs like the following
 playlist_ids = {
-    "punk": "37i9dQZF1DX3LDIBRoaCDQ",
+    "punk1": "37i9dQZF1DX3LDIBRoaCDQ",
+    "punk2": "37i9dQZF1DXa9wYJr1oMFq",
     "reggae": "37i9dQZF1DXa8n42306eJB",
     "rap": "3fxpDkHyW6Y2aR5FFRLOtO",
-    "classical": "5tXCRZAUKp2uqtmJZNkQxY"}
+    "classical": "5tXCRZAUKp2uqtmJZNkQxY",
+    "classic": "37i9dQZF1DX9OZisIoJQhG",
+    "rock-classic": "37i9dQZF1DWXRqgorJj26U",
+    "heavy metal": "37i9dQZF1DX9qNs32fujYe",
+    "jazz": "37i9dQZF1DX4wta20PHgwo",
+    "funk": "4xFSdiuP4gpR4wq2OghlOs",
+    "hip hop": "37i9dQZF1DX0XUsuxWHRQd",
+    "electronic": "37i9dQZF1DWSFNWN7fsnAm",
+    "indie": "37i9dQZF1DX8hcTuUCeYxa"}
 
 X_list = [] # it will contain all the matrices X of each playlist
 extra_info = {"id": [],
@@ -61,33 +71,29 @@ print(X.shape)
 
 # 8) Improve data representation
 X, feature_names, _ = improve_data_representation(X, feature_names, extra_info, scale=True,
-                                                  use_playlist=False, aug_ica=False, aug_tsne=False, aug_umap=False)
+                                                  use_playlist=True, aug_ica=True, aug_tsne=False, aug_umap=True)
 
 # -----------------------------------------------------
 # Create 2D representation
 # -----------------------------------------------------
 from sklearn.manifold import Isomap, TSNE, MDS
 from umap import UMAP
-man = Isomap()
+man = TSNE()
 z = man.fit_transform(X)
 print(z.shape)
 
 # -----------------------------------------------------
 # Visualize its
 # -----------------------------------------------------
-visualize_representations(z, extra_info, with_click=True)
-plt.title(man)
-plt.show()
+# visualize_representations(z, extra_info, with_click=True)
+# plt.title(man)
+# plt.show()
 
 
 # -----------------------------------------------------
 # Explore it to create the Playlist
 # -----------------------------------------------------
-# ref_song = "..."
-# num_songs = 10
-# playlist = create_playlist(ref_song, num_songs)
 s0 = 123
-
 playlist = create_playlist(z, s0)
 
 for song_index in playlist:
@@ -97,9 +103,22 @@ song_ids = []
 for song_index in playlist:
     song_ids.append(extra_info["id"][song_index])
 
-upload_playlist(song_ids)
+pickle.dump(song_ids, open("created_playlists/" + str(datetime.now()) + ".pickle", "wb"))
 
 # -----------------------------------------------------
 # Upload playlist
 # -----------------------------------------------------
-# upload_playlist(playlist)
+# res = input("Do you want to upload it? yes/[no]\n")
+# if res == "yes":
+#     # upload_playlist(song_ids)
+
+# -----------------------------------------------------
+# Visualize playlist
+# -----------------------------------------------------
+visualize_representations(z, extra_info, with_click=True)
+plt.scatter(z[s0, 0], z[s0, 1], c="g", marker="+", label="start", s=200)
+plt.plot(z[playlist, 0], z[playlist, 1], c="r", marker="", label="playlist")
+
+# plt.plot(z[song_ids, ])
+plt.title(man)
+plt.show()
