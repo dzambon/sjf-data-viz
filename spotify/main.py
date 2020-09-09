@@ -60,20 +60,23 @@ X = np.concatenate(X_list, axis=0)
 print(X.shape)
 
 # 8) Improve data representation
-# X, y = improve_data_representation(X, extra_info)
+X, feature_names, _ = improve_data_representation(X, feature_names, extra_info, scale=True,
+                                                  use_playlist=False, aug_ica=False, aug_tsne=False, aug_umap=False)
 
 # -----------------------------------------------------
 # Create 2D representation
 # -----------------------------------------------------
-from sklearn.manifold import Isomap, TSNE
-man = TSNE()
+from sklearn.manifold import Isomap, TSNE, MDS
+from umap import UMAP
+man = Isomap()
 z = man.fit_transform(X)
 print(z.shape)
 
 # -----------------------------------------------------
-# Visualize it
+# Visualize its
 # -----------------------------------------------------
 visualize_representations(z, extra_info, with_click=True)
+plt.title(man)
 plt.show()
 
 
@@ -83,6 +86,18 @@ plt.show()
 # ref_song = "..."
 # num_songs = 10
 # playlist = create_playlist(ref_song, num_songs)
+s0 = 123
+
+playlist = create_playlist(z, s0)
+
+for song_index in playlist:
+    print(extra_info["song_name"][song_index] + "  |  " + extra_info["song_artist"][song_index])
+
+song_ids = []
+for song_index in playlist:
+    song_ids.append(extra_info["id"][song_index])
+
+upload_playlist(song_ids)
 
 # -----------------------------------------------------
 # Upload playlist

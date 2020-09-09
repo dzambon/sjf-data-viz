@@ -96,11 +96,12 @@ def improve_data_representation(X, feature_names, extra_info, scale=False,
     
     if scale:
         # scaler = MinMaxScaler()
+        from sklearn.preprocessing import StandardScaler
         scaler = StandardScaler()
         scaler.fit(X)
         X = scaler.transform(X)
     
-    return X, y, cols, scaler
+    return X, cols, scaler
 
 def visualize_representations(z, extra_info=None, with_click=False):
     y, le = get_interger_labels(extra_info["original_playlist"])
@@ -130,6 +131,38 @@ def visualize_representations(z, extra_info=None, with_click=False):
             current_label.figure.canvas.draw()
     
         fig.canvas.mpl_connect('pick_event', onpick)
+
+def distance(z_i, z_j):
+    assert z_i.ndim == 1
+    assert z_j.ndim == 1
+    return np.linalg.norm(z_i - z_j)
+
+
+def create_playlist(z, s0):
+    num_of_songs = z.shape[0]
+    D = np.zeros((num_of_songs, num_of_songs))
+    
+    playlist = [s0]
+    
+    # precompute all distances
+    for i in range(num_of_songs):
+        for j in range(num_of_songs):
+            D[i, j] = distance(z[i], z[j])
+    
+    tot_songs_in_playlist = 20
+    for current_songs_in_playlist in range(tot_songs_in_playlist):
+        
+        # sort the corresponding row
+        sorted_indices = np.argsort(D[s0])
+        
+        # find the next song
+        l = 0
+        while sorted_indices[l] in playlist:
+            l = l + 1
+        playlist.append(sorted_indices[l])
+    
+    print(playlist)
+    return playlist
 
 def extract_song_ids(pl_info):
     # Michelle and Samuel
@@ -173,3 +206,18 @@ def create_data_matrix(feature_list):
             X[s, f] = feature_list[s][desired_features[f]]
     return X, desired_features
 
+def upload_playlist(song_ids):
+    # Create a new playlist for tracks to add - you may also add these tracks to your source playlist and proceed
+    # playlist_recs = sp.user_playlist_create(username, name='proj0_pl_out', public=False)
+    # Take existing
+    global SPOTIFY_CONNECTION, USERNAME
+
+    if SPOTIFY_CONNECTION is None:
+        SPOTIFY_CONNECTION = login_to_spotify()
+
+    playlist_recs = SPOTIFY_CONNECTION.user_playlist(USERNAME, "5ZIkVxhdEIa5e3MacnN6vg")
+    print(playlist_recs['id'])
+    # # Add tracks to the playlist
+    # sp.user_playlist_add_tracks(username, playlist_recs['id'], selected_df['id'].values.tolist());
+    # Replace all tracks in the playlist
+    SPOTIFY_CONNECTION.user_playlist_replace_tracks(USERNAME, playlist_recs['id'], song_ids);
