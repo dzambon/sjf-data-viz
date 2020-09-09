@@ -40,8 +40,19 @@ def get_spotify_features(song_id):
         SPOTIFY_CONNECTION = login_to_spotify()
 
     feat_ = SPOTIFY_CONNECTION.audio_features(song_id)
-    return feat_
+    assert len(feat_) == 0
+    return feat_[0]
 
-def dowload_music():
-    print("I have nothing to do, yet")
-    return 0
+def extract_song_ids(pl_info):
+    playlist_song_ids = []
+    for i in range(50):
+        playlist_song_ids.append(pl_info["tracks"]["items"][i]["track"]["id"])
+    return playlist_song_ids
+
+def get_feature_list(song_list):
+    song_feature_list = []
+    for song_id in song_list:
+        song_features = get_spotify_features(song_id)
+        song_feature_list.append(song_features)
+    return song_feature_list
+
