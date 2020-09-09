@@ -46,12 +46,21 @@ def get_spotify_features(song_id):
     return feat_[0]
 
 
+def get_interger_labels(str_labels):
+    from sklearn import preprocessing
+    le = preprocessing.LabelEncoder()
+    int_labels = le.fit_transform(str_labels)
+    return int_labels, le
+
 # def improve_data_representation(music_df, scale=False,
 #                                 use_playlist=False, aug_ica=False, aug_tsne=False, aug_umap=False):
 def improve_data_representation(X, feature_names, extra_info, scale=False,
                                 use_playlist=False, aug_ica=False, aug_tsne=False, aug_umap=False):
-    y, playlist_names = pd.factorize(extra_info["original_playlist"])
-    
+
+    # y, playlist_names = pd.factorize(extra_info["original_playlist"])
+    #
+    y, le = get_interger_labels(extra_info["original_playlist"])
+    playlist_names = le.classes_
     cols = feature_names
     
     if use_playlist:
@@ -93,16 +102,18 @@ def improve_data_representation(X, feature_names, extra_info, scale=False,
     
     return X, y, cols, scaler
 
-def visualize_representations(z, y, playlist_ids, music_df, with_click=False):
-
+def visualize_representations(z, extra_info=None, with_click=False):
+    y, le = get_interger_labels(extra_info["original_playlist"])
+    playlist_names = le.classes_
+    
     fig, ax = plt.subplots()
     scatter = plt.scatter(z[:, 0], z[:, 1], c=y, picker=5)
-    legend1 = ax.legend(scatter.legend_elements()[0], playlist_ids,
+    legend1 = ax.legend(scatter.legend_elements()[0], playlist_names,
                         loc="lower left", title="Classes")
     ax.add_artist(legend1)
     ax.axis("equal")
     plt.legend()
-    print(scatter.legend_elements())
+    # print(scatter.legend_elements())
 
     if with_click:
         current_label = ax.annotate("None", xy=z[0])
@@ -110,10 +121,10 @@ def visualize_representations(z, y, playlist_ids, music_df, with_click=False):
         def onpick(event):
             for i in event.ind:
                 print("[{}] {} | {}\nhttps://open.spotify.com/track/{}".format(i,
-                    music_df.track_artist[i],
-                    music_df.track_name[i],
-                    music_df.index[i]))
-            current_label.set_text("{}_{}".format(str(i), music_df.track_name[i]))
+                    extra_info["song_artist"][i],
+                    extra_info["song_name"][i],
+                    extra_info["id"][i]))
+            current_label.set_text("{}_{}".format(str(i), extra_info["song_name"][i]))
             current_label.set_x(z[i, 0])
             current_label.set_y(z[i, 1])
             current_label.figure.canvas.draw()
@@ -132,7 +143,7 @@ def extract_song_artists(pl_info):
     # Michelle
     playlist_song_artists = []
     for i in range(len(pl_info["tracks"]["items"])):
-        playlist_song_artists.append(pl_info["tracks"]["items"][i]["track"]["artists"])
+        playlist_song_artists.append(pl_info["tracks"]["items"][i]["track"]["artists"][0]["name"])
     return playlist_song_artists
 
 def extract_song_names(pl_info):

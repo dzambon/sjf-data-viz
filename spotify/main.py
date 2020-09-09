@@ -59,19 +59,24 @@ for pl_name, pl_id in playlist_ids.items():
 X = np.concatenate(X_list, axis=0)
 print(X.shape)
 
-
 # 8) Improve data representation
 # X, y = improve_data_representation(X, extra_info)
 
 # -----------------------------------------------------
 # Create 2D representation
 # -----------------------------------------------------
-# z = tsne.fit_transform(X)
+from sklearn.manifold import Isomap, TSNE
+man = TSNE()
+z = man.fit_transform(X)
+print(z.shape)
 
 # -----------------------------------------------------
 # Visualize it
 # -----------------------------------------------------
-# plt.scatter(z[:, 0], z[:, 1], color=y)
+visualize_representations(z, extra_info, with_click=True)
+plt.show()
+
+
 # -----------------------------------------------------
 # Explore it to create the Playlist
 # -----------------------------------------------------
