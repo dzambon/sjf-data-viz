@@ -64,6 +64,7 @@ def draw_all(X, color, n_neighbors=10, only_method=None, base_folder=".", n_comp
             #compute
             try:
                 t0 = time()
+                print("fitting the " + str(method) + "...")
                 z = method.fit_transform(X)
                 t1 = time()
                 dt = t1 - t0
@@ -77,7 +78,7 @@ def draw_all(X, color, n_neighbors=10, only_method=None, base_folder=".", n_comp
 
         # Draw representations
         print("{}: {:.2g} sec".format(method_name, dt))
-        scatter = ax.scatter(z[:, 0], z[:, 1], c=color, marker=".")
+        scatter = ax.scatter(*[z[:, i] for i in range(z.shape[1])], c=color, marker=".")
         legend1 = ax.legend(*scatter.legend_elements(), title="Digit")
         ax.add_artist(legend1)
         ax.set_title("{} ({:.2g} sec)".format(method_name, dt))

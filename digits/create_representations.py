@@ -3,7 +3,7 @@ from sjf_data_viz.utils.visualization import *
 from sklearn import datasets
 import numpy as np
 
-n_components=2
+n_components=3
 only_method="t-SNE"
 
 ds = datasets.load_digits(n_class=10)

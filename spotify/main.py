@@ -3,6 +3,9 @@ import pickle
 from datetime import datetime
 from sjf_data_viz.spotify import *
 
+starting_song = 123
+recompute_representation = True
+
 # -----------------------------------------------------
 # Collect some data from spotify and save them
 # -----------------------------------------------------
@@ -28,7 +31,7 @@ extra_info = {"id": [],
               "song_name": [],
               "original_playlist": []}
 for pl_name, pl_id in playlist_ids.items():
-    print(pl_name + ":\t " + pl_id, end="")
+    print(pl_id + ":\t" + pl_name + "\t\t", end="")
     
     #check whether or not we already have the playlist information
     filename = "downloaded_playlists/pl_info_" + pl_name + ".pickle"
@@ -71,15 +74,20 @@ print(X.shape)
 
 # 8) Improve data representation
 X, feature_names, _ = improve_data_representation(X, feature_names, extra_info, scale=True,
-                                                  use_playlist=True, aug_ica=True, aug_tsne=False, aug_umap=True)
+                                                  use_playlist=.3, aug_ica=False, aug_tsne=False, aug_umap=False)
 
 # -----------------------------------------------------
 # Create 2D representation
 # -----------------------------------------------------
 from sklearn.manifold import Isomap, TSNE, MDS
 from umap import UMAP
-man = TSNE()
-z = man.fit_transform(X)
+man = TSNE(perplexity=50)
+filename = "downloaded_playlists/z_" + str(man)[:-2] + ".pickle"
+if recompute_representation or not os.path.isfile(filename):
+    z = man.fit_transform(X)
+    pickle.dump(z, open(filename, "wb"))
+else:
+    z = pickle.load(open(filename, "rb"))
 print(z.shape)
 
 # -----------------------------------------------------
@@ -93,7 +101,7 @@ print(z.shape)
 # -----------------------------------------------------
 # Explore it to create the Playlist
 # -----------------------------------------------------
-s0 = 123
+s0 = starting_song
 playlist = create_playlist(z, s0)
 
 for song_index in playlist:
@@ -106,13 +114,6 @@ for song_index in playlist:
 pickle.dump(song_ids, open("created_playlists/" + str(datetime.now()) + ".pickle", "wb"))
 
 # -----------------------------------------------------
-# Upload playlist
-# -----------------------------------------------------
-# res = input("Do you want to upload it? yes/[no]\n")
-# if res == "yes":
-#     # upload_playlist(song_ids)
-
-# -----------------------------------------------------
 # Visualize playlist
 # -----------------------------------------------------
 visualize_representations(z, extra_info, with_click=True)
@@ -122,3 +123,10 @@ plt.plot(z[playlist, 0], z[playlist, 1], c="r", marker="", label="playlist")
 # plt.plot(z[song_ids, ])
 plt.title(man)
 plt.show()
+
+# -----------------------------------------------------
+# Upload playlist
+# -----------------------------------------------------
+res = input("Do you want to upload it? yes/[no]\n")
+if res == "yes":
+    upload_playlist(song_ids)

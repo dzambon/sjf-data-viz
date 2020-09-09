@@ -4,3 +4,7 @@ USERNAME = 'my_username'
 CID = 'f2o8f74p2example3h1p9f19pfh12jf0'
 # Client Secret; copy this from your app
 SECRET = 'f2o8f74p2example3h1p9f19pfh12jf0'
+# Our default Spotify playlist
+PERSONAL_PLAYLIST = 'dEIa5j3bs92n4ge3MacnN6vg'
+# Redirect URI
+REDIRECT_URI = 'https://developer.spotify.com/dashboard/applications/4bb92241ff7944ppa8380423f319g4sv6'
