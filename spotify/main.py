@@ -12,8 +12,13 @@ playlist_ids = {
     "rap": "3fxpDkHyW6Y2aR5FFRLOtO",
     "classical": "5tXCRZAUKp2uqtmJZNkQxY"}
 
+X_list = [] # it will contain all the matrices X of each playlist
+extra_info = {"id": [],
+              "song_artist": [],
+              "song_name": [],
+              "original_playlist": []}
 for pl_name, pl_id in playlist_ids.items():
-    print(pl_name + "-->" + pl_id)
+    print(pl_name + ":\t " + pl_id, end="")
     
     #check whether or not we already have the playlist information
     filename = "downloaded_playlists/pl_info_" + pl_name + ".pickle"
@@ -39,19 +44,34 @@ for pl_name, pl_id in playlist_ids.items():
         pickle.dump(song_feature_list, open(filename, "wb"))
     else:
         song_feature_list = pickle.load(open(filename, "rb"))
-   
+
+    # 6) Create data matrix X
+    X_current_playlist, feature_names = create_data_matrix(song_feature_list)
+    X_list.append(X_current_playlist)
+    extra_info["id"] += song_list
+    extra_info["song_name"] += extract_song_names(playlist_information)
+    extra_info["song_artist"] += extract_song_artists(playlist_information)
+    extra_info["original_playlist"] += [pl_name]*len(song_list)
+    
+    print("with " + str(len(song_list)) + " songs")
+
+# 7) Concatenate all matrices X
+X = np.concatenate(X_list, axis=0)
+print(X.shape)
+
+
+# 8) Improve data representation
+# X, y = improve_data_representation(X, extra_info)
 
 # -----------------------------------------------------
 # Create 2D representation
 # -----------------------------------------------------
-# X = music
 # z = tsne.fit_transform(X)
 
 # -----------------------------------------------------
 # Visualize it
 # -----------------------------------------------------
-# plt.plot(z)
-
+# plt.scatter(z[:, 0], z[:, 1], color=y)
 # -----------------------------------------------------
 # Explore it to create the Playlist
 # -----------------------------------------------------
