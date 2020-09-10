@@ -103,7 +103,9 @@ print(z.shape)
 # Explore it to create the Playlist
 # -----------------------------------------------------
 s0 = starting_song
-playlist = create_playlist(z, s0)
+# playlist = create_ordered_playlist(z, s0)
+# playlist = create_ordered_playlist(z, s0, drift=True, consider_s0=False)
+playlist = create_random_walk_playlist(z, s0)
 
 for song_index in playlist:
     print(extra_info["id"][song_index])

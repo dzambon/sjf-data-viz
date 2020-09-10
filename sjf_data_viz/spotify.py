@@ -123,8 +123,8 @@ def visualize_representations(z, extra_info=None, with_click=False):
     y, le = get_integer_labels(extra_info["original_playlist"])
     playlist_names = le.classes_
     
-    fig, ax = plt.subplots()
-    scatter = plt.scatter(z[:, 0], z[:, 1], c=y, picker=5)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    scatter = plt.scatter(z[:, 0], z[:, 1], c=y, marker=".", picker=5)
     legend1 = ax.legend(scatter.legend_elements()[0], playlist_names,
                         loc="lower left", title="Classes")
     ax.add_artist(legend1)
@@ -198,7 +198,41 @@ def distance(z_i, z_j):
     assert z_j.ndim == 1
     return np.linalg.norm(z_i - z_j)
 
-def create_playlist(z, s0):
+def create_ordered_playlist(z, s0, consider_s0=True, drift=False):
+    # Michelle and Samuel
+    num_of_songs = z.shape[0]
+    D = np.zeros((num_of_songs, num_of_songs))
+    
+    playlist = [s0]
+    
+    # precompute all distances
+    for i in range(num_of_songs):
+        for j in range(num_of_songs):
+            D[i, j] = distance(z[i], z[j])
+    
+    tot_songs_in_playlist = 20
+    for current_songs_in_playlist in range(tot_songs_in_playlist):
+        
+        # sort the corresponding row
+        scores = 0
+        if consider_s0:
+            scores += D[s0]
+        if drift:
+            scores += D[playlist[-1]]
+
+        sorted_indices = np.argsort(scores)
+        
+        # find the next song
+        l = 0
+        while sorted_indices[l] in playlist:
+            l = l + 1
+        playlist.append(sorted_indices[l])
+    
+    print(playlist)
+    return np.array(playlist)
+
+
+def create_random_walk_playlist(z, s0, k=5):
     # Michelle and Samuel
     num_of_songs = z.shape[0]
     D = np.zeros((num_of_songs, num_of_songs))
@@ -218,9 +252,15 @@ def create_playlist(z, s0):
         
         # find the next song
         l = 0
-        while sorted_indices[l] in playlist:
-            l = l + 1
-        playlist.append(sorted_indices[l])
+        closest_song_list = []
+        while len(closest_song_list) < k:
+            if sorted_indices[l] in playlist:
+                l = l + 1
+            else:
+                closest_song_list.append(l)
+                l = l + 1
+        next_song = np.random.choice(closest_song_list)
+        playlist.append(sorted_indices[next_song])
     
     print(playlist)
     return np.array(playlist)
