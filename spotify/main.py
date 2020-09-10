@@ -4,7 +4,7 @@ from datetime import datetime
 from sjf_data_viz.spotify import *
 
 starting_song = 123
-recompute_representation = True
+recompute_representation = False
 
 # -----------------------------------------------------
 # Collect some data from spotify and save them
@@ -73,8 +73,9 @@ X = np.concatenate(X_list, axis=0)
 print(X.shape)
 
 # 8) Improve data representation
+playlist_relevance = .4
 X, feature_names, _ = improve_data_representation(X, feature_names, extra_info, scale=True,
-                                                  use_playlist=.3, aug_ica=False, aug_tsne=False, aug_umap=False)
+                                                  use_playlist=playlist_relevance, aug_ica=False, aug_tsne=False, aug_umap=False)
 
 # -----------------------------------------------------
 # Create 2D representation
@@ -82,7 +83,7 @@ X, feature_names, _ = improve_data_representation(X, feature_names, extra_info, 
 from sklearn.manifold import Isomap, TSNE, MDS
 from umap import UMAP
 man = TSNE(perplexity=50)
-filename = "downloaded_playlists/z_" + str(man)[:-2] + ".pickle"
+filename = "downloaded_playlists/z_" + str(man) + str(playlist_relevance) + ".pickle"
 if recompute_representation or not os.path.isfile(filename):
     z = man.fit_transform(X)
     pickle.dump(z, open(filename, "wb"))
@@ -105,6 +106,9 @@ s0 = starting_song
 playlist = create_playlist(z, s0)
 
 for song_index in playlist:
+    print(extra_info["id"][song_index])
+
+for song_index in playlist:
     print(extra_info["song_name"][song_index] + "  |  " + extra_info["song_artist"][song_index])
 
 song_ids = []
@@ -122,6 +126,7 @@ plt.plot(z[playlist, 0], z[playlist, 1], c="r", marker="", label="playlist")
 
 # plt.plot(z[song_ids, ])
 plt.title(man)
+plt.savefig("playlist.pdf")
 plt.show()
 
 # -----------------------------------------------------
