@@ -115,7 +115,7 @@ song_ids = []
 for song_index in playlist:
     song_ids.append(extra_info["id"][song_index])
 
-pickle.dump(song_ids, open("created_playlists/" + str(datetime.now()) + ".pickle", "wb"))
+pickle.dump(song_ids, open("created_playlists/" + datetime.now().strftime("%y%m%d_%H%M") + ".pickle", "wb"))
 
 # -----------------------------------------------------
 # Visualize playlist
