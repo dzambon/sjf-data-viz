@@ -124,7 +124,7 @@ def visualize_representations(z, extra_info=None, with_click=False):
     playlist_names = le.classes_
     
     fig, ax = plt.subplots(figsize=(8, 8))
-    scatter = plt.scatter(z[:, 0], z[:, 1], c=y, marker=".", picker=5)
+    scatter = plt.scatter(z[:, 0], z[:, 1], c=y, picker=5, marker=".")
     legend1 = ax.legend(scatter.legend_elements()[0], playlist_names,
                         loc="lower left", title="Classes")
     ax.add_artist(legend1)

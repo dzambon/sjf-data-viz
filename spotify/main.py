@@ -3,7 +3,7 @@ import pickle
 from datetime import datetime
 from sjf_data_viz.spotify import *
 
-starting_song = 123
+starting_song = 234
 recompute_representation = False
 
 # -----------------------------------------------------
